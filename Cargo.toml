@@ -1,0 +1,16 @@
+[package]
+name = "dotnet-helpers-v2"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+tree-sitter = "0.23.0"
+tree-sitter-c-sharp = "0.23.0"
+clap = { version = "4.5.17", features = ["derive"] }
+ratatui = "0.24.0"
+crossterm = "0.28.1"
+strum = "0.26.3"
+strum_macros = "0.26.4"
+
+[build-dependencies]
+cc = "*"

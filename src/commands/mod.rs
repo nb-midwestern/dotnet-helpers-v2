@@ -1,6 +1,6 @@
 pub mod generate_test_from_service;
 
-use std::process::Command;
+use std::{path::PathBuf, process::Command, str::FromStr};
 
 use crate::{app::CommandType, App};
 
@@ -63,6 +63,16 @@ pub fn set_root_directory(app: &mut App) {
 }
 
 pub fn generate_test_from_service(app: &mut App) {
-    let service = app.additional_args.clone();
-    // app.current_command = CommandType::GetOutputDir;
+    generate_test_from_service::generate_test_from_service(app);
+}
+
+pub fn get_input_file(app: &mut App) {
+    let path = PathBuf::from_str(&app.additional_args).expect("Could not read path buff");
+    app.set_input_file(path);
+    app.additional_args = String::new();
+}
+
+pub fn set_output_file(app: &mut App) {
+    let path = PathBuf::from_str(&app.additional_args).expect("Could not read path buff");
+    app.output_file = path;
 }

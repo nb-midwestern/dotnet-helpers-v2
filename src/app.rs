@@ -21,7 +21,8 @@ pub enum InputMode {
 #[derive(Clone, Copy, EnumIter, PartialEq, Eq)]
 pub enum CommandType {
     GenerateTestFromService,
-    GetOutputDir,
+    SetOutputFile,
+    GetInputFile,
     UpdateDependencies,
     CleanSolution,
     BuildProject,
@@ -42,7 +43,8 @@ impl CommandType {
             CommandType::Quit => KeyCode::Char('q'),
             CommandType::None => KeyCode::Null,
             CommandType::GenerateTestFromService => KeyCode::Char('t'),
-            CommandType::GetOutputDir => KeyCode::Null,
+            CommandType::SetOutputFile => KeyCode::Char('o'),
+            CommandType::GetInputFile => KeyCode::Null,
         }
     }
 
@@ -56,14 +58,15 @@ impl CommandType {
             CommandType::Quit => "Quit",
             CommandType::None => " ",
             CommandType::GenerateTestFromService => "Generate test from Service",
-            CommandType::GetOutputDir => " ",
+            CommandType::SetOutputFile => "Set Output File",
+            CommandType::GetInputFile => "",
         }
     }
 
     pub fn is_visible(&self) -> bool {
         match self {
             CommandType::None => false,
-            CommandType::GetOutputDir => false,
+            CommandType::GetInputFile => false,
             _ => true,
         }
     }
@@ -73,7 +76,8 @@ impl CommandType {
             CommandType::GenerateTestFromService => true,
             CommandType::RunTests => true,
             CommandType::SetRootDirectory => true,
-            CommandType::GetOutputDir => true,
+            CommandType::SetOutputFile => true,
+            CommandType::GetInputFile => true,
             _ => false,
         }
     }
@@ -91,8 +95,8 @@ pub struct App {
     pub status_message: String,
     pub current_command: CommandType,
     pub additional_args: String,
-    pub command_chain: Vec<CommandType>,
-    // Add other state fields as needed
+    pub output_file: PathBuf,
+    pub input_file: PathBuf,
 }
 
 impl App {
@@ -113,7 +117,8 @@ impl App {
             status_message: String::from(""),
             current_command: CommandType::None,
             additional_args: String::new(),
-            command_chain: vec![],
+            output_file: PathBuf::new(),
+            input_file: PathBuf::new(),
         }
     }
 
@@ -124,6 +129,16 @@ impl App {
             self.status_message = format!("Root directory set to {}.", self.root_directory);
         } else {
             self.status_message = String::from("Invalid directory!");
+        }
+    }
+
+    pub fn set_input_file(&mut self, path: PathBuf) {
+        if path.is_file() {
+            self.input_file = path;
+            self.status_message =
+                format!("Input File set to {}.", self.input_file.to_string_lossy())
+        } else {
+            self.status_message = format!("Invalid File {}", path.to_string_lossy())
         }
     }
 }

@@ -40,12 +40,22 @@ pub fn draw<B: Backend>(f: &mut Frame, app: &App) {
             match app.current_command {
                 CommandType::RunTests => draw_argument_input::<B>(f, chunks[1], app, "Run Tests"),
                 CommandType::GenerateTestFromService => {
-                    draw_argument_input::<B>(f, chunks[1], app, "Path to Service")
+                    draw_path_input_screen::<B>(f, chunks[1], app, "Set Input File")
                 }
-                CommandType::SetRootDirectory => draw_input::<B>(f, chunks[1], app),
-
-                // Handle other commands
-                _ => {}
+                CommandType::SetRootDirectory => {
+                    draw_path_input_screen::<B>(f, chunks[1], app, "Set Root Directory")
+                }
+                CommandType::SetOutputFile => {
+                    draw_path_input_screen::<B>(f, chunks[1], app, "Set Output File")
+                }
+                CommandType::GetInputFile => {
+                    draw_path_input_screen::<B>(f, chunks[1], app, "Set Input File")
+                }
+                CommandType::UpdateDependencies => {}
+                CommandType::CleanSolution => {}
+                CommandType::BuildProject => {}
+                CommandType::Quit => {}
+                CommandType::None => {} // Handle other commands
             }
         }
     }
@@ -54,8 +64,13 @@ pub fn draw<B: Backend>(f: &mut Frame, app: &App) {
 }
 
 fn draw_title<B: Backend>(f: &mut Frame, area: Rect, app: &App) {
-    let title = Paragraph::new(format!("Dotnet Tools - Root: {}", app.root_directory))
-        .block(Block::default().borders(Borders::ALL));
+    let title = Paragraph::new(format!(
+        "Dotnet Tools - Root: {} - input: {} - Output: {}  ",
+        app.root_directory,
+        app.input_file.to_str().unwrap_or("---"),
+        app.output_file.to_str().unwrap_or("dotnet-helpers-out.cs")
+    ))
+    .block(Block::default().borders(Borders::ALL));
     f.render_widget(title, area);
 }
 
@@ -80,14 +95,10 @@ fn draw_menu<B: Backend>(f: &mut Frame, area: Rect, _app: &App) {
     f.render_widget(menu, area);
 }
 
-fn draw_input<B: Backend>(f: &mut Frame, area: Rect, app: &App) {
+fn draw_path_input_screen<B: Backend>(f: &mut Frame, area: Rect, app: &App, title: &str) {
     let input = Paragraph::new::<Text>(app.input.clone().into())
         .style(Style::default().fg(Color::Yellow))
-        .block(
-            Block::default()
-                .title("Set Root Directory")
-                .borders(Borders::ALL),
-        );
+        .block(Block::default().title(title).borders(Borders::ALL));
     f.render_widget(input, area);
     f.set_cursor(
         // Put cursor past the end of the input text

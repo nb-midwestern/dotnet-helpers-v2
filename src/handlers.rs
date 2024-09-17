@@ -74,6 +74,8 @@ fn execute_command(command: CommandType, app: &mut App) {
         CommandType::SetRootDirectory => commands::set_root_directory(app),
         CommandType::GenerateTestFromService => commands::generate_test_from_service(app),
         CommandType::Quit => app.should_quit = true,
-        _ => {}
+        CommandType::SetOutputFile => commands::set_output_file(app),
+        CommandType::GetInputFile => commands::get_input_file(app),
+        CommandType::None => {}
     }
 }

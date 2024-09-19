@@ -77,7 +77,7 @@ fn build_mock_object(class_info: ClassInfo) -> String {
             }
         })
         .collect::<Vec<String>>()
-        .join("\n\t\t");
+        .join("\n\t\t\t");
 
     let transaction_setup = if include_transaction {
         format!(
@@ -112,7 +112,9 @@ fn build_mock_object(class_info: ClassInfo) -> String {
     {build_mock}
     {{
         {transaction_setup}
-        {mock_objects}
+        var mock = new Mock<{class_name}>(
+            {mock_objects}
+            );
         return mock;
     }}
 

@@ -1,4 +1,4 @@
-use super::types::ConstructorInfo;
+use super::types::{ConstructorInfo, Parameter};
 
 pub fn find_constructor_info(node: &tree_sitter::Node, source_code: &str) -> ConstructorInfo {
     let mut constructor_info = ConstructorInfo {
@@ -69,7 +69,10 @@ pub fn find_constructor_info(node: &tree_sitter::Node, source_code: &str) -> Con
                 }
 
                 // Create a Parameter struct instead of a formatted string
-                let param = format!("{} {}", param_type, param_name);
+                let param = Parameter {
+                    type_value: param_type,
+                    identifier: param_name,
+                };
                 constructor_info.parameters.push(param);
             }
         }

@@ -1,4 +1,4 @@
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct MethodInfo {
     pub name: String,
     pub return_type: String,
@@ -7,7 +7,7 @@ pub struct MethodInfo {
     pub attributes: Vec<String>,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct FieldInfo {
     pub name: String,
     pub field_type: String,
@@ -15,7 +15,7 @@ pub struct FieldInfo {
     pub attributes: Vec<String>,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct ClassInfo {
     pub name: String,
     pub modifiers: Vec<String>,
@@ -24,10 +24,16 @@ pub struct ClassInfo {
     pub constructors: Vec<ConstructorInfo>,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct ConstructorInfo {
     pub name: String,
     pub modifiers: Vec<String>,
     pub attributes: Vec<String>,
-    pub parameters: Vec<String>,
+    pub parameters: Vec<Parameter>,
+}
+
+#[derive(Debug, Clone)]
+pub struct Parameter {
+    pub type_value: String,
+    pub identifier: String,
 }

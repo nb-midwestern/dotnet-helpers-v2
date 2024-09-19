@@ -1,7 +1,4 @@
-use super::{
-    find_constructor_info::find_constructor_info,
-    types::{ClassInfo, ConstructorInfo},
-};
+use super::{find_constructor_info::find_constructor_info, types::ClassInfo};
 
 pub fn find_class_info(node: &tree_sitter::Node, source_code: &str) -> Option<ClassInfo> {
     if node.kind() == "class_declaration" {

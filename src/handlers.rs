@@ -77,5 +77,6 @@ fn execute_command(command: CommandType, app: &mut App) {
         CommandType::SetOutputFile => commands::set_output_file(app),
         CommandType::GetInputFile => commands::get_input_file(app),
         CommandType::None => {}
+        CommandType::GenerateFakerFromEntity => commands::generate_faker_from_entity(app),
     }
 }

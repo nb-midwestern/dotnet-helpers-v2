@@ -36,28 +36,29 @@ pub fn draw<B: Backend>(f: &mut Frame, app: &App) {
     draw_title::<B>(f, chunks[0], app);
     match app.input_mode {
         InputMode::Normal => draw_menu::<B>(f, chunks[1], app),
-        InputMode::Editing => {
-            match app.current_command {
-                CommandType::RunTests => draw_argument_input::<B>(f, chunks[1], app, "Run Tests"),
-                CommandType::GenerateTestFromService => {
-                    draw_path_input_screen::<B>(f, chunks[1], app, "Set Input File")
-                }
-                CommandType::SetRootDirectory => {
-                    draw_path_input_screen::<B>(f, chunks[1], app, "Set Root Directory")
-                }
-                CommandType::SetOutputFile => {
-                    draw_path_input_screen::<B>(f, chunks[1], app, "Set Output File")
-                }
-                CommandType::GetInputFile => {
-                    draw_path_input_screen::<B>(f, chunks[1], app, "Set Input File")
-                }
-                CommandType::UpdateDependencies => {}
-                CommandType::CleanSolution => {}
-                CommandType::BuildProject => {}
-                CommandType::Quit => {}
-                CommandType::None => {} // Handle other commands
+        InputMode::Editing => match app.current_command {
+            CommandType::RunTests => draw_argument_input::<B>(f, chunks[1], app, "Run Tests"),
+            CommandType::GenerateTestFromService => {
+                draw_path_input_screen::<B>(f, chunks[1], app, "Set Input File")
             }
-        }
+            CommandType::SetRootDirectory => {
+                draw_path_input_screen::<B>(f, chunks[1], app, "Set Root Directory")
+            }
+            CommandType::SetOutputFile => {
+                draw_path_input_screen::<B>(f, chunks[1], app, "Set Output File")
+            }
+            CommandType::GetInputFile => {
+                draw_path_input_screen::<B>(f, chunks[1], app, "Set Input File")
+            }
+            CommandType::UpdateDependencies => {}
+            CommandType::CleanSolution => {}
+            CommandType::BuildProject => {}
+            CommandType::Quit => {}
+            CommandType::None => {}
+            CommandType::GenerateFakerFromEntity => {
+                draw_path_input_screen::<B>(f, chunks[1], app, "Set Input File")
+            }
+        },
     }
 
     draw_status_bar::<B>(f, chunks[2], app);

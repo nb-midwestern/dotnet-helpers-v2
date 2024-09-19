@@ -1,3 +1,4 @@
+pub mod generate_faker_from_entity;
 pub mod generate_test_from_service;
 
 use std::{path::PathBuf, process::Command, str::FromStr};
@@ -64,6 +65,10 @@ pub fn set_root_directory(app: &mut App) {
 
 pub fn generate_test_from_service(app: &mut App) {
     generate_test_from_service::generate_test_from_service(app);
+}
+
+pub fn generate_faker_from_entity(app: &mut App) {
+    generate_faker_from_entity::generate_faker_from_entity(app);
 }
 
 pub fn get_input_file(app: &mut App) {

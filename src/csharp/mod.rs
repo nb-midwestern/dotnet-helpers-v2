@@ -4,5 +4,6 @@ pub mod find_fields;
 pub mod find_methods;
 pub mod find_namespace;
 pub mod find_parameters;
+pub mod find_properties;
 pub mod tree_sitter;
 pub mod types;

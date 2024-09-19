@@ -21,6 +21,7 @@ pub enum InputMode {
 #[derive(Clone, Copy, EnumIter, PartialEq, Eq)]
 pub enum CommandType {
     GenerateTestFromService,
+    GenerateFakerFromEntity,
     SetOutputFile,
     GetInputFile,
     UpdateDependencies,
@@ -45,6 +46,7 @@ impl CommandType {
             CommandType::GenerateTestFromService => KeyCode::Char('t'),
             CommandType::SetOutputFile => KeyCode::Char('o'),
             CommandType::GetInputFile => KeyCode::Null,
+            CommandType::GenerateFakerFromEntity => KeyCode::Char('f'),
         }
     }
 
@@ -60,6 +62,7 @@ impl CommandType {
             CommandType::GenerateTestFromService => "Generate test from Service",
             CommandType::SetOutputFile => "Set Output File",
             CommandType::GetInputFile => "",
+            CommandType::GenerateFakerFromEntity => "Generate faker from Entity",
         }
     }
 
@@ -78,6 +81,7 @@ impl CommandType {
             CommandType::SetRootDirectory => true,
             CommandType::SetOutputFile => true,
             CommandType::GetInputFile => true,
+            CommandType::GenerateFakerFromEntity => true,
             _ => false,
         }
     }

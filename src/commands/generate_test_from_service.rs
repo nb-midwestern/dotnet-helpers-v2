@@ -35,104 +35,126 @@ pub fn generate_test_from_service(app: &mut App) {
 }
 
 fn build_mock_object(class_info: ClassInfo) -> String {
-    let constructor_info = get_constructor_with_most_params(&class_info.constructors).unwrap();
+    // Attempt to get the constructor with the most parameters
+    let constructor_info_option = get_constructor_with_most_params(&class_info.constructors);
 
-    let class_name = constructor_info.clone().name;
+    let class_name = class_info.name.clone();
     let test_class_name = format!("public class {class_name}Test");
-    let build_sut = format!("private {class_name} BuildSystemUnderTest()");
-    let build_mock = format!("private Mock<{class_name}> BuildMock()");
 
-    let include_transaction = constructor_info
-        .parameters
-        .iter()
-        .any(|i| i.type_value.contains("IUnitOfWork"));
+    // Use AutoFixture with AutoMoqCustomization
+    let fixture_field = "private readonly IFixture _fixture;".to_string();
 
-    let transaction_mock = match include_transaction {
-        true => "private readonly Mock<IDbContextTransaction> _transaction = new();".to_string(),
-        false => "".to_string(),
+    // Declare the SUT
+    let sut_field = format!("private readonly {class_name} _sut;");
+
+    // Determine dependencies from the constructor parameters, if any
+    let dependencies = if let Some(constructor_info) = constructor_info_option {
+        constructor_info.parameters.clone()
+    } else {
+        // No constructors found; assume default constructor with no parameters
+        Vec::new()
     };
 
-    let param_mock = constructor_info
-        .parameters
+    // Declare mocks for all dependencies
+    let mocks_declaration = dependencies
         .iter()
         .map(|param| {
             format!(
-                "private readonly Mock<{}> _{} = new();",
-                param.type_value, param.identifier,
+                "private readonly Mock<{0}> _{1}Mock;",
+                param.type_value,
+                to_camel_case(&param.identifier)
             )
         })
         .collect::<Vec<String>>()
-        .join("\n\t");
+        .join("\n    ");
 
-    let mock_objects = constructor_info
-        .parameters
-        .iter()
-        .enumerate()
-        .map(|(index, i)| {
-            let transformed_name = format!("_{}.Object", i.identifier);
-            if index < constructor_info.parameters.len() - 1 {
-                format!("{},", transformed_name)
-            } else {
-                transformed_name
-            }
-        })
-        .collect::<Vec<String>>()
-        .join("\n\t\t\t");
+    // Initialize Fixture, Mocks, and SUT in the constructor
+    let constructor_body = format!(
+        r#"
+        _fixture = new Fixture().Customize(new AutoMoqCustomization());
+        {mocks_initialization}
+        _sut = new {class_name}({dependencies_initialization});
+        "#,
+        mocks_initialization = dependencies
+            .iter()
+            .map(|param| {
+                format!(
+                    "_{0}Mock = new Mock<{1}>();",
+                    to_camel_case(&param.identifier),
+                    param.type_value
+                )
+            })
+            .collect::<Vec<String>>()
+            .join("\n        "),
+        dependencies_initialization = dependencies
+            .iter()
+            .map(|param| format!("_{0}Mock.Object", to_camel_case(&param.identifier)))
+            .collect::<Vec<String>>()
+            .join(", ")
+    );
 
-    let transaction_setup = if include_transaction {
-        format!(
-            r#"
-        _unitOfWork.Setup(uow => uow.BeginTransaction(It.IsAny<CancellationToken>()))
-            .ReturnsAsync(_transaction.Object);
+    // Example test method
+    let example_test_method = format!(
+        r#"
+    [Fact]
+    public async Task {class_name}_ExampleTest()
+    {{
+        // Arrange
+        {mocks_setup}
 
-        _transaction.Setup(tran => tran.CommitAsync(It.IsAny<CancellationToken>()))
-            .Returns(Task.CompletedTask);
+        // Act
+        var result = await _sut.MethodUnderTest();
 
-        _transaction.Setup(tran => tran.RollbackAsync(It.IsAny<CancellationToken>()))
-            .Returns(Task.CompletedTask);
-            "#
-        )
-    } else {
-        String::new()
-    };
+        // Assert
+        {assertions}
+    }}
+    "#,
+        mocks_setup = dependencies
+            .iter()
+            .map(|param| {
+                format!(
+                    "// Set up _{0}Mock as needed",
+                    to_camel_case(&param.identifier)
+                )
+            })
+            .collect::<Vec<String>>()
+            .join("\n        "),
+        assertions = "// Add your assertions here"
+    );
 
     return format!(
         r#"
 {test_class_name}
-{{    
-    {param_mock}
-    {transaction_mock}
-    
+{{
+    {fixture_field}
+    {mocks_declaration}
+    {sut_field}
 
-    {build_sut}
+    public {class_name}Test()
     {{
-         return BuildMock().Object;
+        {constructor_body}
     }}
-
-    {build_mock}
-    {{
-        {transaction_setup}
-        var mock = new Mock<{class_name}>(
-            {mock_objects}
-            );
-        return mock;
-    }}
-
-    [Fact]
-    public async Task {class_name}_ShouldCompile()
-    {{
-        var _sut = BuildSystemUnderTest();
-        Assert.NotNull(_sut);
-
-    }}
-
+    {example_test_method}
 }}
-    "#
+"#,
     );
 }
-
 fn get_constructor_with_most_params(constructors: &[ConstructorInfo]) -> Option<&ConstructorInfo> {
     constructors
         .iter()
         .max_by_key(|constructor| constructor.parameters.len())
+}
+
+fn should_mock_specific_methods(type_value: &str) -> bool {
+    // Return true for types that require specific method setups
+    // matches!(type_value, "IProductRepository" | "IVinRepository")
+    true
+}
+
+fn to_camel_case(s: &str) -> String {
+    let mut chars = s.chars();
+    match chars.next() {
+        None => String::new(),
+        Some(f) => f.to_lowercase().collect::<String>() + chars.as_str(),
+    }
 }

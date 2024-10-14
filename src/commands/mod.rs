@@ -3,7 +3,7 @@ pub mod generate_test_from_service;
 
 use std::{path::PathBuf, process::Command, str::FromStr};
 
-use crate::{app::CommandType, App};
+use crate::App;
 
 fn execute_command(command: &mut Command, app: &mut App, action: &str) {
     app.status_message = format!("{}...", action);
